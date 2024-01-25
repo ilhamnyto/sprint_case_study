@@ -13,7 +13,7 @@ import (
 
 func main() {
 	config.LoadConfig(".env")
-
+	
 	db := database.ConnectDB()
 
 	e := echo.New()
@@ -22,8 +22,12 @@ func main() {
 	taskController := controller.NewTaskController(taskRepository)
 	routes.TaskRoutes(e, *taskController)
 
+	subTaskRepository := repositories.NewSubTaskRepository(db.DbSQL)
+	subTaskController := controller.NewSubTaskController(subTaskRepository)
+	routes.SubTaskRoutes(e, *subTaskController)
+
 	e.GET("/", func(c echo.Context) error {
-		return c.String(200, "Hello, World!")
+		return c.String(200, "Sprint Asia Test!")
 	})
 
 	e.Logger.Fatal(e.Start(os.Getenv("HOST") + ":" + os.Getenv("PORT")))

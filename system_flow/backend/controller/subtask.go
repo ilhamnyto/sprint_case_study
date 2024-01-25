@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/ilhamnyto/sprint_case_study/entity"
 	"github.com/ilhamnyto/sprint_case_study/repositories"
@@ -24,7 +25,9 @@ func (p *SubTaskController) CreateSubTask(c echo.Context) error {
 		return err
 	}
 
-	if err := p.repo.Create(&req); err != nil {
+	req.CreatedAt = time.Now()
+
+	if err := p.repo.CreateSubTask(&req); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
@@ -34,34 +37,42 @@ func (p *SubTaskController) CreateSubTask(c echo.Context) error {
 
 func (p *SubTaskController) GetOngoingSubTask(c echo.Context) error {
 
-	tasks, err := p.repo.GetOngoingTask()
+	subtasks, err := p.repo.GetOngoingSubTask()
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(200, tasks)
+	if len(subtasks) == 0 {
+		return c.JSON(http.StatusOK, []string{})
+	}
+
+	return c.JSON(200, subtasks)
 }
 
 func (p *SubTaskController) GetCompletedSubTask(c echo.Context) error {
 
-	tasks, err := p.repo.GetCompletedTask()
+	subtasks, err := p.repo.GetCompletedSubTask()
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(200, tasks)
+	if len(subtasks) == 0 {
+		return c.JSON(http.StatusOK, []string{})
+	}
+
+	return c.JSON(200, subtasks)
 }
 
 func (p *SubTaskController) DeleteSubTask(c echo.Context) error {
-	taskId, err := strconv.Atoi(c.Param("taskId"))
+	subTaskId, err := strconv.Atoi(c.Param("subTaskId"))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	if err := p.repo.DeleteTask(taskId); err != nil {
+	if err := p.repo.DeleteSubTask(subTaskId); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
@@ -76,7 +87,7 @@ func (p *SubTaskController) UpdateSubTask(c echo.Context) error {
 		return err
 	}
 
-	if err := p.repo.UpdateTask(req.ID, req.Title); err != nil {
+	if err := p.repo.UpdateSubTask(req.ID, req.Title, req.Deadline); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
@@ -91,7 +102,7 @@ func (p *SubTaskController) CompleteSubTask(c echo.Context) error {
 		return err
 	}
 
-	if err := p.repo.CompleteTask(req.ID); err != nil {
+	if err := p.repo.CompleteSubTask(req.ID); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 

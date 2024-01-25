@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/ilhamnyto/sprint_case_study/entity"
@@ -21,7 +22,7 @@ var (
 		SELECT id, title, created_at, deadline, completed_at from task WHERE completed_at is not null
 	`
 	queryUpdateTask = `
-		UPDATE task SET title = ? WHERE id = ?
+		UPDATE task SET title = ?, deadline = ? WHERE id = ?
 	`
 	queryCompleteTask = `
 		UPDATE task SET completed_at = ? WHERE id = ?
@@ -29,11 +30,11 @@ var (
 )
 
 type InterfaceTaskRepository interface {
-	Create(task *entity.Task) error
+	CreateTask(task *entity.Task) error
 	GetOngoingTask() ([]*entity.Task, error)
 	GetCompletedTask() ([]*entity.Task, error)
 	DeleteTask(id int) error
-	UpdateTask(id int, title string) error
+	UpdateTask(id int, title string, deadline *time.Time) error
 	CompleteTask(id int) error
 }
 
@@ -45,7 +46,7 @@ func NewTaskRepository(db *sql.DB) InterfaceTaskRepository {
 	return &TaskRepository{db: db}
 }
 
-func (r *TaskRepository) Create(task *entity.Task) error {
+func (r *TaskRepository) CreateTask(task *entity.Task) error {
 	stmt, err := r.db.Prepare(queryCreateTask)
 
 	if err != nil {
@@ -130,14 +131,14 @@ func (r *TaskRepository) DeleteTask(id int) error {
 	return nil
 }
 
-func (r *TaskRepository) UpdateTask(id int, title string) error {
+func (r *TaskRepository) UpdateTask(id int, title string, deadline *time.Time) error {
 	stmt, err := r.db.Prepare(queryUpdateTask)
 
 	if err != nil {
 		return err
 	}
-
-	if _, err = stmt.Exec(title, id); err != nil {
+	fmt.Println(deadline)
+	if _, err = stmt.Exec(title, deadline, id); err != nil {
 		return err
 	}
 

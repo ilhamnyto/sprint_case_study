@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ilhamnyto/sprint_case_study/grading"
+)
 
 func main() {
 	var numStudent int
@@ -18,9 +22,7 @@ func main() {
 		i += 1
 	}
 
-	fmt.Println(studentGrades)
-
-	result, err := GradingStudents(studentGrades)
+	result, err := grading.GradingStudents(studentGrades)
 
 	if err != nil {
 		panic(err)

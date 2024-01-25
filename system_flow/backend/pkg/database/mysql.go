@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ilhamnyto/sprint_case_study/config"
@@ -24,26 +26,35 @@ func (d *Database) SetDatabase(db *sql.DB) *Database {
 func ConnectDB() (*Database) {
 	var (
 		db_host = config.GetString(config.DB_HOST)
-		db_port = config.GetString(config.DB_PORT)
+		// db_port = config.GetString(config.DB_PORT)
 		db_user = config.GetString(config.DB_USER)
 		db_password = config.GetString(config.DB_PASSWORD)
 		db_name = config.GetString(config.DB_NAME)
+		dbsql *sql.DB
+		err error
 	)
 
-	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		db_user, db_password, db_host, db_port, db_name,
-	)
+	maxRetries := 10
+	retryInterval := 5 * time.Second
 
-	dbsql, err := sql.Open("mysql", dsn)
+	for i := 0; i < maxRetries; i++ {
+		dsn := fmt.Sprintf(
+			"%s:%s@tcp(%s)/%s?parseTime=true",
+			db_user, db_password, db_host, db_name,
+		)
+	
+		dbsql, err = sql.Open("mysql", dsn)
+		
+		if err := dbsql.Ping(); err == nil {
+			break
+		}
 
-	if err != nil {
-		panic(err)
+		log.Printf("Error connecting to MySQL: %v", err)
+		log.Printf("Retrying in %s...", retryInterval)
+		time.Sleep(retryInterval)
 	}
 
-	if err := dbsql.Ping(); err != nil {
-		panic(err)
-	}
+
 
 	db := NewDatabase()
 	db = db.SetDatabase(dbsql)
