@@ -10,7 +10,7 @@ func SubTaskRoutes(e *echo.Echo, c controller.SubTaskController) {
 	subTaskGroup.POST("/create", c.CreateSubTask)
 	subTaskGroup.GET("/ongoing", c.GetOngoingSubTask)
 	subTaskGroup.GET("/completed", c.GetCompletedSubTask)
-	subTaskGroup.DELETE("/:taskId", c.DeleteSubTask)
+	subTaskGroup.DELETE("/:subTaskId", c.DeleteSubTask)
 	subTaskGroup.PUT("/update", c.UpdateSubTask)
 	subTaskGroup.PUT("/complete", c.CompleteSubTask)
 }

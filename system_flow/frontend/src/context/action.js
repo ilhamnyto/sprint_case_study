@@ -1,0 +1,5 @@
+export const ACTION = {
+  USER_INPUT: "USER_INPUT",
+  SUBMIT_FORM: "SUBMIT_FORM",
+  SUBMIT_DONE: "SUBMIT_DONE",
+};

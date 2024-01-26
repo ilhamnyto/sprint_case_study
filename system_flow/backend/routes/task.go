@@ -7,6 +7,7 @@ import (
 
 func TaskRoutes(e *echo.Echo, c controller.TaskController) {
 	tasksGroup := e.Group("/api/v1/tasks")
+	tasksGroup.GET("", c.GetTaskAndSubTask)
 	tasksGroup.POST("/create", c.CreateTask)
 	tasksGroup.GET("/ongoing", c.GetOngoingTask)
 	tasksGroup.GET("/completed", c.GetCompletedTask)

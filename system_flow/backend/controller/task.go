@@ -26,6 +26,10 @@ func (p *TaskController) CreateTask(c echo.Context) error {
 	}
 
 	req.CreatedAt = time.Now()
+	if req.Deadline != nil {
+		parsedTime := time.Date(req.Deadline.Year(), req.Deadline.Month(), req.Deadline.Day(), 0,0,0,0,time.UTC)
+		req.Deadline = &parsedTime
+	}
 
 	if err := p.repo.CreateTask(&req); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
@@ -38,6 +42,21 @@ func (p *TaskController) CreateTask(c echo.Context) error {
 func (p *TaskController) GetOngoingTask(c echo.Context) error {
 
 	tasks, err := p.repo.GetOngoingTask()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	if len(tasks) == 0 {
+		return c.JSON(http.StatusOK, []string{})
+	}
+	
+	return c.JSON(200, tasks)
+}
+
+func (p *TaskController) GetTaskAndSubTask(c echo.Context) error {
+
+	tasks, err := p.repo.GetTaskAndSubTask()
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
@@ -104,7 +123,7 @@ func (p *TaskController) CompleteTask(c echo.Context) error {
 
 	complete := time.Now()
 	req.CompletedAt = &complete
-
+	
 	if err := p.repo.CompleteTask(req.ID); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}

@@ -1,7 +1,9 @@
-import TaskInput from "@/components/TaskInput";
+import TaskInput from "@/components/TaskHeader";
 import TodoTabs from "@/components/TodoTabs";
 
-export default function Home() {
+export default async function Home() {
+  const datas = await getData();
+
   return (
     <main className="grid place-items-center h-screen bg-slate-100">
       <div className="space-y-2 px-3 w-full max-w-xl">
@@ -9,9 +11,20 @@ export default function Home() {
           <TaskInput />
         </div>
         <div className="">
-          <TodoTabs />
+          <TodoTabs datas={datas} />
         </div>
       </div>
     </main>
   );
+}
+
+async function getData() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/v1/tasks`);
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
 }

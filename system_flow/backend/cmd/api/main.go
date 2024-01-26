@@ -8,6 +8,7 @@ import (
 	"github.com/ilhamnyto/sprint_case_study/pkg/database"
 	"github.com/ilhamnyto/sprint_case_study/repositories"
 	"github.com/ilhamnyto/sprint_case_study/routes"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,6 +18,10 @@ func main() {
 	db := database.ConnectDB()
 
 	e := echo.New()
+
+	
+
+	e.Use(Cors())
 
 	taskRepository := repositories.NewTaskRepository(db.DbSQL)
 	taskController := controller.NewTaskController(taskRepository)
@@ -31,4 +36,14 @@ func main() {
 	})
 
 	e.Logger.Fatal(e.Start(os.Getenv("HOST") + ":" + os.Getenv("PORT")))
+}
+
+func Cors() echo.MiddlewareFunc {
+	return middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		ExposeHeaders:    []string{echo.HeaderContentLength, echo.HeaderSetCookie},
+		AllowCredentials: true, 
+	})
 }
