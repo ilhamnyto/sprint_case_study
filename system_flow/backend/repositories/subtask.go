@@ -7,7 +7,6 @@ import (
 	"github.com/ilhamnyto/sprint_case_study/entity"
 )
 
-
 var (
 	queryCreateSubTask = `
 		INSERT INTO subtask (task_id, title, created_at, deadline) VALUES (?, ?, ?, ?)
@@ -30,34 +29,44 @@ var (
 )
 
 type InterfaceSubTaskRepository interface {
-	CreateSubTask(subtask *entity.SubTask) error
+	CreateSubTask(subtask *entity.SubTask) (*entity.SubTask, error)
 	GetOngoingSubTask() ([]*entity.SubTask, error)
 	GetCompletedSubTask() ([]*entity.SubTask, error)
-	DeleteSubTask(id int) (error)
+	DeleteSubTask(id int) error
 	UpdateSubTask(id int, title string, deadline *time.Time) error
 	CompleteSubTask(id int) error
 }
 
 type SubTaskRepository struct {
-	db	*sql.DB
+	db *sql.DB
 }
 
 func NewSubTaskRepository(db *sql.DB) InterfaceSubTaskRepository {
 	return &SubTaskRepository{db: db}
 }
 
-func (r *SubTaskRepository) CreateSubTask(subtask *entity.SubTask) error {
+func (r *SubTaskRepository) CreateSubTask(subtask *entity.SubTask) (*entity.SubTask, error) {
 	stmt, err := r.db.Prepare(queryCreateSubTask)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err = stmt.Exec(subtask.TaskID, subtask.Title, subtask.CreatedAt, subtask.Deadline); err != nil {
-		return err
+	res, err := stmt.Exec(subtask.TaskID, subtask.Title, subtask.CreatedAt, subtask.Deadline)
+
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	lid, err := res.LastInsertId()
+
+	if err != nil {
+		return nil, err
+	}
+
+	subtask.ID = int(lid)
+
+	return subtask, nil
 }
 
 func (r *SubTaskRepository) GetOngoingSubTask() ([]*entity.SubTask, error) {
@@ -118,7 +127,7 @@ func (r *SubTaskRepository) GetCompletedSubTask() ([]*entity.SubTask, error) {
 	return tasks, nil
 }
 
-func (r *SubTaskRepository) DeleteSubTask(id int) (error) {
+func (r *SubTaskRepository) DeleteSubTask(id int) error {
 	stmt, err := r.db.Prepare(queryDeleteSubTask)
 
 	if err != nil {
@@ -161,4 +170,3 @@ func (r *SubTaskRepository) CompleteSubTask(id int) error {
 
 	return nil
 }
-

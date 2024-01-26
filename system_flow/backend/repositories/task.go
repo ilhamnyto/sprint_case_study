@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/ilhamnyto/sprint_case_study/entity"
@@ -35,7 +34,7 @@ var (
 )
 
 type InterfaceTaskRepository interface {
-	CreateTask(task *entity.Task) error
+	CreateTask(task *entity.Task) (*entity.Task, error)
 	GetOngoingTask() ([]*entity.Task, error)
 	GetTaskAndSubTask() ([]*entity.Task, error)
 	GetCompletedTask() ([]*entity.Task, error)
@@ -52,18 +51,29 @@ func NewTaskRepository(db *sql.DB) InterfaceTaskRepository {
 	return &TaskRepository{db: db}
 }
 
-func (r *TaskRepository) CreateTask(task *entity.Task) error {
+func (r *TaskRepository) CreateTask(task *entity.Task) (*entity.Task, error) {
 	stmt, err := r.db.Prepare(queryCreateTask)
 
 	if err != nil {
-		return err
+		return nil ,err
 	}
 
-	if _, err = stmt.Exec(task.Title, task.CreatedAt, task.Deadline); err != nil {
-		return err
+	res, err := stmt.Exec(task.Title, task.CreatedAt, task.Deadline);
+
+	if err != nil {
+		return nil, err
+	}
+	
+	lid, err := res.LastInsertId()
+	
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	task.ID = int(lid)
+	task.SubTasks = []entity.SubTask{}
+
+	return task, nil
 }
 
 func (r *TaskRepository) GetOngoingTask() ([]*entity.Task, error) {
@@ -115,7 +125,6 @@ func (r *TaskRepository) GetTaskAndSubTask() ([]*entity.Task, error) {
 		tempTask := new(entity.Task)
 		tempSubTask := new(entity.SubTask)
 		if err := rows.Scan(&tempTask.ID, &tempTask.Title, &tempTask.CreatedAt, &tempTask.Deadline, &tempTask.CompletedAt, &tempSubTask.ID, &tempSubTask.TaskID, &tempSubTask.Title, &tempSubTask.Deadline, &tempSubTask.CreatedAt, &tempSubTask.CompletedAt); err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 
@@ -199,7 +208,7 @@ func (r *TaskRepository) UpdateTask(id int, title string, deadline *time.Time) e
 	if err != nil {
 		return err
 	}
-	fmt.Println(deadline)
+
 	if _, err = stmt.Exec(title, deadline, id); err != nil {
 		return err
 	}

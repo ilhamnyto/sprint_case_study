@@ -27,11 +27,12 @@ func (p *SubTaskController) CreateSubTask(c echo.Context) error {
 
 	req.CreatedAt = time.Now()
 
-	if err := p.repo.CreateSubTask(&req); err != nil {
+	subtask, err := p.repo.CreateSubTask(&req)
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	resp := map[string]string{"message": "subtask created successfully"}
+	resp := map[string]interface{}{"message": "subtask created successfully", "data": subtask}
 	return c.JSON(http.StatusOK, resp)
 }
 

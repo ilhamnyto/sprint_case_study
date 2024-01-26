@@ -1,5 +1,9 @@
 import TaskInput from "@/components/TaskHeader";
 import TodoTabs from "@/components/TodoTabs";
+import { getData } from "@/lib/utils";
+import { useContext } from "react";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const datas = await getData();
@@ -16,15 +20,4 @@ export default async function Home() {
       </div>
     </main>
   );
-}
-
-async function getData() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/v1/tasks`);
-
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error("Failed to fetch data");
-  }
-
-  return res.json();
 }

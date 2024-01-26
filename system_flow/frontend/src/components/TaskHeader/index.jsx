@@ -1,35 +1,25 @@
 "use client";
 
-import { useState } from "react";
-
+import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import CalendarInput from "@/components/TaskHeader/CalendarInput";
 import { formatISO } from "date-fns";
+import { addTask } from "@/lib/utils";
+import { AppContext } from "@/context/appContext";
 
 export default function TaskInput() {
   const [date, setDate] = useState();
   const [todo, setTodo] = useState("");
-  const submitHandler = (event) => {
+  const { state, dispatch } = useContext(AppContext);
+
+  const submitHandler = async (event) => {
     event.preventDefault();
-    let postData = {
+
+    const res = await addTask({
       title: todo,
       deadline: date ? formatISO(date, "yyyy-MM-dd'T'HH:mm:ss'Z'") : null,
-    };
-
-    fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/v1/tasks/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    })
-      .then((res) => {
-        console.log(res.json());
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
+    });
+    dispatch({ type: "ADD_TASK", payload: res.data });
     setTodo("");
     setDate(null);
   };
