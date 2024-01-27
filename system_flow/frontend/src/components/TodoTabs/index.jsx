@@ -12,7 +12,7 @@ export default function TodoTabs({ datas }) {
     dispatch({ type: "INIT_TASK", payload: datas });
     return () => {};
   }, []);
-  
+
   let ongoingData = state.filter((data) => data?.completed_at == null);
   let completedData = state.filter((data) => data?.completed_at != null);
   return (
@@ -31,7 +31,7 @@ export default function TodoTabs({ datas }) {
             ongoingData.map((data) => <Todo key={data.id} data={data} />)
           ) : (
             <div className="grid place-items-center text-sm font-bold opacity-55 pt-6">
-              There's no ongoing task
+              {"There's no ongoing task"}
             </div>
           )}
         </div>
@@ -42,7 +42,7 @@ export default function TodoTabs({ datas }) {
             completedData.map((data) => <Todo key={data.id} data={data} />)
           ) : (
             <div className="grid place-items-center text-sm font-bold opacity-55 pt-6">
-              There's no completed task
+              {"There's no completed task"}
             </div>
           )}
         </div>
