@@ -36,7 +36,7 @@ Go to backend folder and install package
 go mod tidy
 ```
 
-Copy .env and adjust with your environment
+Copy .env and adjust with your environment, wusing <b>MySQL</b> database
 
 ```cmd
 cd .env.example .env
