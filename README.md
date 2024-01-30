@@ -39,7 +39,7 @@ go mod tidy
 Copy .env and adjust with your environment, we are using <b>MySQL</b> database
 
 ```cmd
-cd .env.example .env
+cp .env.example .env
 ```
 
 Do migration
@@ -65,7 +65,7 @@ npm i
 Copy .env and adjust with your environment
 
 ```cmd
-cd .env.example .env
+cp .env.example .env
 ```
 
 Run App
